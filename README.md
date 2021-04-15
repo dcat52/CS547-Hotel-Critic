@@ -1,1 +1,1 @@
-# CS547_HotelCritic
+# CS547_Hotel_Critic
