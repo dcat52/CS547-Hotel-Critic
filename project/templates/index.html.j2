@@ -7,13 +7,15 @@
 {{util.flashed_messages(dismissible=True)}}
 <div class="container">
   <h1>Welcome to the Hotel Critic!</h1>
+  
+  {{ vers }}
+  <br>
+  <br>
 
   <!-- <h2>Search</h2> -->
   <form method="POST" action="/submit">
     {{ wtf.quick_form(form, button_map={'submit_button': 'primary'}) }}
   </form>
-
-  {{ myvar }}
 
   <table class="table">
     <thead>

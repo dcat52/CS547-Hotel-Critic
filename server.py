@@ -1,7 +1,7 @@
 #Project Flask MVC
 
 __author__ = "WPI_Students"
-__version__ = "0.2.0"
+__version__ = "0.2.1"
 __email__ = "_@wpi.edu"
 
 from project import app
@@ -16,5 +16,7 @@ if __name__ == '__main__':
     app.config['SECRET_KEY'] = 'devkey'
     app.config['RECAPTCHA_PUBLIC_KEY'] = \
         '6Lfol9cSAAAAADAkodaYl9wvQCwBMr3qGR_PPHcw'
+
+    app.__version__ = __version__
 
     app.run(host="localhost", port=8000, debug=True)

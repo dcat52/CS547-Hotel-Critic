@@ -9,8 +9,6 @@ from project import app
 from project.models.Hotel import Hotel
 from project.models.SearchForm import SearchForm
 
-
-#route index
 @app.route('/submit', methods=['POST'])
 def search(submit=False):
     return index(submit=True)
@@ -39,4 +37,6 @@ def index(submit=False):
             else:
                 i += 1
 
-    return render_template('index.html.j2', data=data, form=form, hotels=hotels)
+    version_str = "Vers. {}".format(app.__version__)
+
+    return render_template('index.html.j2', vers=version_str, form=form, hotels=hotels)
