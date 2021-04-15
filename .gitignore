@@ -1,0 +1,7 @@
+# Python files
+*.pyc
+
+# Storage files
+*.json
+*.pkl
+
