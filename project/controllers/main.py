@@ -9,8 +9,19 @@ from project import app
 from project.models.Hotel import Hotel
 from project.models.SearchForm import SearchForm
 
+def get_version_string():
+    version_str = "Vers. {}".format(app.__version__)
+    return version_str
+
+@app.route('/about', methods=['GET'])
+def about():
+    text = "It is an app.<br>Developed by student.<br>While at Worcester Polytechnic Institute.<br><a href='https://github.com/dcat52/CS547_Hotel_Critic'>See it on Github</a>"
+    version_str = get_version_string()
+    return render_template('about.html.j2', vers=version_str, text=text)
+
+
 @app.route('/submit', methods=['POST'])
-def search(submit=False):
+def search():
     return index(submit=True)
 
 #route index
@@ -37,6 +48,6 @@ def index(submit=False):
             else:
                 i += 1
 
-    version_str = "Vers. {}".format(app.__version__)
+    version_str = get_version_string()
 
     return render_template('index.html.j2', vers=version_str, form=form, hotels=hotels)
