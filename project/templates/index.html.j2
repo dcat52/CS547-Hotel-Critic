@@ -9,7 +9,9 @@
   <h1>Welcome to the Hotel Critic!</h1>
 
   <!-- <h2>Search</h2> -->
-  {{ wtf.quick_form(form, button_map={'submit_button': 'primary'}) }}
+  <form method="POST" action="/submit">
+    {{ wtf.quick_form(form, button_map={'submit_button': 'primary'}) }}
+  </form>
 
   {{ myvar }}
 
@@ -23,22 +25,17 @@
         <tr>
     </thead>
     <tbody>
-        {% for person in people %}
+        {% for h in hotels %}
         <tr>
-            <td>{{ person.rank }}</td>
-            <td>{{ person.rating }}</td>
-            <td>{{ person.name }}</td>
-            <td>{{ person.location }}</td>
+            <td>{{ h.rank }}</td>
+            <td>{{ h.rating }}</td>
+            <td>{{ h.name }}</td>
+            <td>{{ h.location }}</td>
         </tr>
         {% endfor %}
     </tbody>
-</table>
-<!-- 
-  <h2>The same form, inline</h2>
-  {{ wtf.quick_form(form, form_type='inline', button_map={'submit_button': 'primary'}) }}
+  </table>
 
-  <h2>And as a horizontal form</h2>
-  {{ wtf.quick_form(form, form_type='horizontal', button_map={'submit_button': 'primary'})}} -->
 </div>
 {% endblock %}
 
