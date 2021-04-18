@@ -51,21 +51,24 @@ class Hotel(object):
         if 'or' in text:
             processd_text = text.split('or')
             for term in processd_text:
+                # if sub-query includes and
                 if 'and' in term:
                     key_words = self.process_and(term)
+                    # calculate weighted score
                     score = self.calculate_aspect_score(key_words)
                     or_score.append(score)
+                # process each non-and sub-query one by one
                 else:
                     term = term.strip()
-                    key_words = self.process_or(term)
+                    key_words = self.process_word(term)
                     score = self.calculate_aspect_score(key_words)
                     or_score.append(score)
+        # process each non-and sub-query one by one
         else:
             terms = text
-            key_words = self.process_or(terms)
+            key_words = self.process_word(terms)
             score = self.calculate_aspect_score(key_words)
             or_score.append(score)
-
 
         return round(max(or_score),2)
 
@@ -80,11 +83,12 @@ class Hotel(object):
         return tokens
 
 
-    def process_or(self,text):
+    def process_word(self,text):
         terms = text.split(' ')
         for term in terms:
             if term in self.key_words:
                 return [self.key_words[term]]
+        return []
 
 
     def process_and(self,text):
@@ -93,6 +97,7 @@ class Hotel(object):
         for term in remove_and:
             term = term.strip()
             for t in term.split(' '):
+                # get all aspect words
                 if t.strip() in self.key_words:
                     aspect.append(self.key_words[t.strip()])
         return aspect
@@ -100,13 +105,17 @@ class Hotel(object):
 
     def calculate_aspect_score(self,aspects,main_weight=0.6, overall_weight=0.2, other_weight=0.1, num_review_weight=0.1):
         len_dict = len(self.avg_rating)
+        len_aspects = 0
         real_aspects = []
+        # find out aspects that are in the query and match them with the rating dictionary
         for aspect in aspects:
             if aspect in self.avg_rating:
                 real_aspects.append(aspect)
         len_aspects = len(real_aspects)
+        # if the aspect 
         if len_aspects == 0:
             main_weight = 0
+            overall_weight = 0.8
         else:
             main_weight = main_weight/len_aspects
         other_weight = other_weight/(len_dict-len_aspects) if 'Overall' not in self.avg_rating else other_weight/((len_dict-len_aspects)-1)
@@ -121,7 +130,7 @@ class Hotel(object):
                 if k not in set(real_aspects):
                     other_weight_score += self.avg_rating[k]*other_weight
                     overall_weight_score += self.avg_rating[k]
-        overall_weight_score = overall_weight_score/other_weight
+        overall_weight_score = overall_weight_score/((len_dict-len_aspects)-1)
 
         for a in real_aspects:
             main_weight_score += self.avg_rating[a]*main_weight
@@ -136,16 +145,17 @@ class Hotel(object):
 def main(args):
     hotel = Hotel()
     print("start processing hotel ratings")
-    text = 'clean'
+    text = ''
     hotel_score = []
     for file in glob.glob('./json_small/*.json'):
         if hotel.generate_hotel_name(file) != None and hotel.generate_rating_dict(file) != None:
-            key = hotel.generate_hotel_name(file)
-            content = hotel.rank_aspect(text)
-            combo = (key,content)
+            name = hotel.name
+            score = hotel.rank_aspect(text)
+            combo = (name,score)
             hotel_score.append(combo)
     hotel_score = sorted(hotel_score, key = lambda x: x[1],reverse=True) 
     print(hotel_score)
+    print(hotel.name)
    
 
 if __name__ == '__main__':
