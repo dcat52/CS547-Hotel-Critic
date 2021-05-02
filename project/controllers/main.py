@@ -15,7 +15,7 @@ def get_version_string():
 
 @app.route('/about', methods=['GET'])
 def about():
-    text = "It is an app.<br>Developed by student.<br>While at Worcester Polytechnic Institute.<br><a href='https://github.com/dcat52/CS547_Hotel_Critic'>See it on Github</a>"
+    text = "It is an app.<br>Developed by students.<br>While at Worcester Polytechnic Institute.<br><a href='https://github.com/dcat52/CS547_Hotel_Critic'>See it on Github</a>"
     version_str = get_version_string()
     return render_template('about.html.j2', vers=version_str, text=text)
 
