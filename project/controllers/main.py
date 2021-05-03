@@ -8,6 +8,8 @@ from flask_wtf import FlaskForm
 from project import app
 from project.models.Hotel import Hotel
 from project.models.SearchForm import SearchForm
+from project.controllers.DataPreprocess import *
+from project.controllers.QueryProcess import *
 
 def get_version_string():
     version_str = "Vers. {}".format(app.__version__)
@@ -33,21 +35,32 @@ def index(submit=False):
     }
     form = SearchForm()
     form.validate_on_submit()
+    
+    hotel_list = app.data
 
-    p1 = Hotel(1, 4.8, "Higgins", "WPI")
-    p2 = Hotel(2, 4.5, "Salisbury", "WPI")
-    p3 = Hotel(3, 1.2, "Sketchy", "Nowhere")
-    p4 = Hotel(4, 1.1, "Super Sketchy", "Nowhere")
-    hotels = [p1, p2, p3, p4]
+    print(hotel_list)
 
-    if submit:
-        i = 0
-        while i < len(hotels):
-            if form.qfield.data not in hotels[i].name:
-                hotels.pop(i)
-            else:
-                i += 1
+    data = []
+    for h in hotel_list:
+        score = rank_aspect(h, '')
+        packed_data = (score, h)
+        data.append(packed_data)
+
+    data.sort(key=lambda x: x[1], reverse=True)
+    # p1 = Hotel(1, 4.8, "Higgins", "WPI")
+    # p2 = Hotel(2, 4.5, "Salisbury", "WPI")
+    # p3 = Hotel(3, 1.2, "Sketchy", "Nowhere")
+    # p4 = Hotel(4, 1.1, "Super Sketchy", "Nowhere")
+    # hotels = [p1, p2, p3, p4]
+
+    # if submit:
+    #     i = 0
+    #     while i < len(hotels):
+    #         if form.qfield.data not in hotels[i].name:
+    #             hotels.pop(i)
+    #         else:
+    #             i += 1
 
     version_str = get_version_string()
 
-    return render_template('index.html.j2', vers=version_str, form=form, hotels=hotels)
+    return render_template('index.html.j2', vers=version_str, form=form, hotels=data)

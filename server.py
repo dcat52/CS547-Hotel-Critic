@@ -7,10 +7,16 @@ __email__ = "_@wpi.edu"
 from project import app
 from flask_bootstrap import Bootstrap
 
+from project.models.Hotel import Hotel
+from project.controllers.DataPreprocess import *
+from project.controllers.QueryProcess import *
+
 if __name__ == '__main__':
     Bootstrap(app)
 
     app.debug = True
+
+    app.data = build_data()
 
     # in a real app, these should be configured through Flask-Appconfig
     app.config['SECRET_KEY'] = 'devkey'

@@ -31,12 +31,12 @@
         <tr>
     </thead>
     <tbody>
-        {% for h in hotels %}
+        {% for i, h in enumerate(hotels) %}
         <tr>
-            <td>{{ h.rank }}</td>
-            <td>{{ h.rating }}</td>
-            <td>{{ h.name }}</td>
-            <td>{{ h.location }}</td>
+            <td>{{ i }}</td>
+            <td>{{ h[0] }}</td>
+            <td>{{ h[1].name }}</td>
+            <td>{{ h[1].city }}</td>
         </tr>
         {% endfor %}
     </tbody>
