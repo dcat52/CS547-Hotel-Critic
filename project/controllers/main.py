@@ -24,11 +24,13 @@ def about():
 
 @app.route('/submit', methods=['POST'])
 def search():
-    return index(submit=True)
+    form = SearchForm()
+    form.validate_on_submit()
+    return index(query=form.qfield.data)
 
 #route index
 @app.route('/', methods=['GET'])
-def index(submit=False):
+def index(query=''):
     data = {
         "title": "Hello World",
         "body": "Flask simple MVC"
@@ -38,7 +40,8 @@ def index(submit=False):
     
     hotel_list = app.data
 
-    print(hotel_list)
+    print("QUERY: {}".format(query))
+    # print(hotel_list)
 
     data = []
     for h in hotel_list:
@@ -46,7 +49,9 @@ def index(submit=False):
         packed_data = (score, h)
         data.append(packed_data)
 
-    data.sort(key=lambda x: x[1], reverse=True)
+    data.sort(key=lambda x: x[0], reverse=True)
+
+    print(data[:5])
     # p1 = Hotel(1, 4.8, "Higgins", "WPI")
     # p2 = Hotel(2, 4.5, "Salisbury", "WPI")
     # p3 = Hotel(3, 1.2, "Sketchy", "Nowhere")
