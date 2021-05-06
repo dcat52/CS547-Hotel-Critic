@@ -45,7 +45,7 @@ def index(query=''):
 
     data = []
     for h in hotel_list:
-        score = rank_aspect(h, '')
+        score = rank_aspect(h, query)
         packed_data = (score, h)
         data.append(packed_data)
 
