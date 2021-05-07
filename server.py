@@ -16,7 +16,12 @@ if __name__ == '__main__':
 
     app.debug = True
 
-    app.data = build_data()
+    # attempt to get data from home directory
+    app.data = build_data('/home/json_small/*.json')
+    
+    # if failed, get the data local directory
+    if len(app.data) == 0:
+        app.data = build_data()
 
     # in a real app, these should be configured through Flask-Appconfig
     app.config['SECRET_KEY'] = 'devkey'
