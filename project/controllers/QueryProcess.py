@@ -1,6 +1,8 @@
 import pandas as pd
 import json
 import re
+import math 
+from statistics import mean
 
 def rank_aspect(hotel, text):
     # process and first, then or later
@@ -31,10 +33,11 @@ def rank_aspect(hotel, text):
 
 def process_word(hotel, text):
     terms = text.split(' ')
+    aspects = []
     for term in terms:
         if term in hotel.key_words:
-            return [hotel.key_words[term]]
-    return []
+            aspects.append(hotel.key_words[term])
+    return aspects
 
 def process_and(hotel, text):
     aspect = []
@@ -47,41 +50,43 @@ def process_and(hotel, text):
                 aspect.append(hotel.key_words[t.strip()])
     return aspect
 
-def calculate_aspect_score(hotel, aspects, main_weight=0.6, overall_weight=0.2, other_weight=0.1, num_review_weight=0.1):
-    len_dict = len(hotel.avg_rating)
-    len_aspects = 0
+def calculate_universal_score(hotel, overall_weight=0.5, other_weight=0.45, num_review_weight=0.05):
+    len_aspects = len(hotel.avg_rating) -1 if 'Overall' in hotel.avg_rating else len(hotel.avg_rating)
+
+    aspects = []
+    for k in hotel.avg_rating:
+        if k != 'Overall':
+            aspects.append(k)
+
+    # retrieve overall rating from the avg_rating dictionary, otherwise use all other aspects' average score as overall rating
+    overall = hotel.avg_rating['Overall'] if 'Overall' in hotel.avg_rating else mean(hotel.avg_rating.values())
+    # if there is no other aspects score then overall weight becomes 0.95
+    overall_score = overall_weight * overall if len_aspects > 0 else (overall_weight+other_weight) * overall 
+    other_weight = (other_weight / len_aspects) if len_aspects > 0 else other_weight
+    other_score = 0
+    if len_aspects > 0:
+        for k in aspects:
+            other_score += hotel.avg_rating[k] * other_weight
+    final_score = overall_score + other_score + (math.log(hotel.num_of_reveiws)*num_review_weight)
+    hotel.us = final_score
+    return final_score
+
+
+def calculate_aspect_score(hotel, aspects, main_weight=0.6, us_weight = 0.4):
+    us = calculate_universal_score(hotel)
+
     real_aspects = []
     # find out aspects that are in the query and match them with the rating dictionary
     for aspect in aspects:
-        if aspect in hotel.avg_rating:
+        if aspect in hotel.avg_rating and aspect != 'overall':
             real_aspects.append(aspect)
-    len_aspects = len(real_aspects)
-    # if the aspect
-    if len_aspects == 0:
-        main_weight = 0
-        overall_weight = 0.8
+    if len(real_aspects) > 0:
+        main_weight = main_weight / len(real_aspects)
+        main_score = 0
+        for ra in real_aspects:
+            main_score += hotel.avg_rating[ra] * main_weight
+        final_score = main_score + us_weight * hotel.us 
     else:
-        main_weight = main_weight / len_aspects
-    other_weight = other_weight / (len_dict - len_aspects) if 'Overall' not in hotel.avg_rating else other_weight / ((len_dict - len_aspects) - 1)
-    other_weight_score = 0
-    main_weight_score = 0
-    overall_weight_score = 0
+        final_score = hotel.us         
 
-    for k in hotel.avg_rating:
-        if 'Overall' in hotel.avg_rating:
-            if k not in set(real_aspects) and k != 'Overall':
-                other_weight_score += hotel.avg_rating[k] * other_weight
-        else:
-            if k not in set(real_aspects):
-                other_weight_score += hotel.avg_rating[k] * other_weight
-                overall_weight_score += hotel.avg_rating[k]
-    overall_weight_score = overall_weight_score / ((len_dict - len_aspects) - 1)
-
-    for a in real_aspects:
-        main_weight_score += hotel.avg_rating[a] * main_weight
-
-    if 'Overall' in hotel.avg_rating:
-        final_score = main_weight_score + other_weight_score + (hotel.avg_rating['Overall'] * overall_weight) + (num_review_weight * hotel.num_of_reveiws)
-    else:
-        final_score = main_weight_score + other_weight_score + (overall_weight_score * overall_weight) + (num_review_weight * hotel.num_of_reveiws)
     return final_score
