@@ -1,8 +1,7 @@
 from project.models.Hotel import Hotel
 from project.controllers.QueryProcess import *
-
-import PorterStemmer
-import binarytree
+import project.controllers.PorterStemmer as PorterStemmer
+import project.controllers.binarytree as binarytree
 import pandas as pd
 import glob
 import json

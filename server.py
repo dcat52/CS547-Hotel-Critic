@@ -21,7 +21,7 @@ if __name__ == '__main__':
     
     # if failed, get the data local directory
     if len(app.data) == 0:
-        app.data = build_data()
+        app.data = build_data('./json_small/*.json')
 
     # in a real app, these should be configured through Flask-Appconfig
     app.config['SECRET_KEY'] = 'devkey'
@@ -30,4 +30,5 @@ if __name__ == '__main__':
 
     app.__version__ = __version__
 
+    print("Running the app now.")
     app.run(host='0.0.0.0', port=8000, debug=True)
