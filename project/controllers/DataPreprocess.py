@@ -1,10 +1,23 @@
 from project.models.Hotel import Hotel
 from project.controllers.QueryProcess import *
 
+import PorterStemmer
+import binarytree
 import pandas as pd
 import glob
 import json
 import re
+
+bt = binarytree.binary_tree()
+# contains hotel names
+hotels = []
+
+def crawl_tree(node, term):
+    if not node: return set()
+    if ('*' in term and node.key.startswith(term[:-1])) or term == node.key:
+        x = node.data
+    else: x = set()
+    return x.union(crawl_tree(node.left, term)).union(crawl_tree(node.right, term))
 
 def build_data(pattern='./json_small/*.json'):
     hotel_list = []
@@ -14,8 +27,25 @@ def build_data(pattern='./json_small/*.json'):
         hotel = Hotel()
         if generate_hotel_name(hotel, data) is not None and generate_rating_dict(hotel, data) is not None:
             hotel_list.append(hotel)
-        
+    idx = index_dir(hotel_list)    
+    print("indexed %d hotels" % idx)
     return hotel_list
+
+def index_dir(hotel_list):
+        num_hotels_indexed = 0
+        for h in hotel_list:
+            num_hotels_indexed += 1
+            if h.name not in hotels:
+                hotels.append(h.name)
+            hotel_idx = hotels.index(h.name)
+            for term in h.comment:
+                if term not in bt:
+                    bt[term] = set()
+                if hotel_idx not in bt[term]:
+                    bt[term].add(hotel_idx)
+                    
+        return num_hotels_indexed
+
 
 def load_datafile(filepath):
     """
@@ -53,11 +83,27 @@ def generate_rating_dict(hotel, hotel_dict):
                         avg_rating[aspect][1] += 1
                     else:
                         avg_rating[aspect] = [int(float(review['Ratings'][aspect])),1]
+            if 'Content' in review:
+               tokens = tokenize(review['Content'])
+               stems = stemming(tokens)
+               hotel.comment |= stems 
     for k in avg_rating:
         avg_rating[k] = round(avg_rating[k][0] / avg_rating[k][1],2)
     hotel.avg_rating = avg_rating
     return avg_rating
 
+def tokenize(text):
+    clean_string = re.sub('[^a-z0-9 ]', ' ', text.lower())
+    tokens = clean_string.split()
+    return set(tokens)
+
+def stemming(tokens):
+    stems = set()
+    p = PorterStemmer.PorterStemmer()
+    for token in tokens:
+        stems.add(p.stem(token, 0, len(token) - 1))
+    return stems
+    
 def generate_hotel_name(hotel, hotel_dict):
     """
     Parses hotel name information
