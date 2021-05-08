@@ -8,6 +8,7 @@ class Hotel(object):
         self.city = ''
         self.state = ''
         self.us = 0
+        self.comment = set()
         self.key_words = {'service':'Service','clean':'Cleanliness','overall':'Overall','value':'Value','sleep quality':'Sleep Quality','room':'Rooms','location':'Location','internet':'Business service (e.g., internet access)','check in':'Check in / front desk'}
 
     def __str__(self):
