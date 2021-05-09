@@ -2,8 +2,8 @@ import pandas as pd
 import glob 
 import json
 import re 
-
-
+import math 
+from statistics import mean 
 class Hotel(object):
 
     def __init__(self):
@@ -13,6 +13,9 @@ class Hotel(object):
         self.address = ''
         self.city = ''
         self.state = ''
+        self.us = 0
+        self.address = ''
+        self.price = ''
         self.key_words = {'service':'Service','clean':'Cleanliness','overall':'Overall','value':'Value','sleep quality':'Sleep Quality','room':'Rooms','location':'Location','internet':'Business service (e.g., internet access)','check in':'Check in / front desk'}
 
 
@@ -43,6 +46,10 @@ class Hotel(object):
                 hotel_info = hotel_dict['HotelInfo']
                 if 'Name' in hotel_info:
                     self.name = hotel_info['Name']
+                    if "Price" in hotel_info:
+                        self.price = hotel_info['Price']
+                    if 'Address' in hotel_info:
+                        self.address = hotel_info['Address']
                     return hotel_info['Name']
 
     def rank_aspect(self,text):
@@ -67,6 +74,7 @@ class Hotel(object):
         else:
             terms = text
             key_words = self.process_word(terms)
+            print(key_words)
             score = self.calculate_aspect_score(key_words)
             or_score.append(score)
 
@@ -85,10 +93,11 @@ class Hotel(object):
 
     def process_word(self,text):
         terms = text.split(' ')
+        aspects = []
         for term in terms:
             if term in self.key_words:
-                return [self.key_words[term]]
-        return []
+                aspects.append(self.key_words[term])
+        return aspects
 
 
     def process_and(self,text):
@@ -103,59 +112,68 @@ class Hotel(object):
         return aspect
 
 
-    def calculate_aspect_score(self,aspects,main_weight=0.6, overall_weight=0.2, other_weight=0.1, num_review_weight=0.1):
-        len_dict = len(self.avg_rating)
-        len_aspects = 0
+    def calculate_universal_score(self, overall_weight=0.5, other_weight=0.45, num_review_weight=0.05):
+        len_aspects = len(self.avg_rating) -1 if 'Overall' in self.avg_rating else len(self.avg_rating)
+
+        aspects = []
+        for k in self.avg_rating:
+            if k != 'Overall':
+                aspects.append(k)
+
+        # retrieve overall rating from the avg_rating dictionary, otherwise use all other aspects' average score as overall rating
+        overall = self.avg_rating['Overall'] if 'Overall' in self.avg_rating else mean(self.avg_rating.values())
+        # if there is no other aspects score then overall weight becomes 0.95
+        overall_score = overall_weight * overall if len_aspects > 0 else (overall_weight+other_weight) * overall 
+        other_weight = (other_weight / len_aspects) if len_aspects > 0 else other_weight
+        other_score = 0
+        if len_aspects > 0:
+            for k in aspects:
+                other_score += self.avg_rating[k] * other_weight
+        final_score = overall_score + other_score + (math.log(self.num_of_reveiws)*num_review_weight)
+        self.us = final_score
+        return final_score
+
+
+
+    def calculate_aspect_score(self,aspects,main_weight=0.6, us_weight = 0.4):
+        print(aspects)
+
+        us = self.calculate_universal_score()
+
         real_aspects = []
         # find out aspects that are in the query and match them with the rating dictionary
         for aspect in aspects:
-            if aspect in self.avg_rating:
+            if aspect in self.avg_rating and aspect != 'overall':
                 real_aspects.append(aspect)
-        len_aspects = len(real_aspects)
-        # if the aspect 
-        if len_aspects == 0:
-            main_weight = 0
-            overall_weight = 0.8
+        if len(real_aspects) > 0:
+            main_weight = main_weight / len(real_aspects)
+            main_score = 0
+            for ra in real_aspects:
+                main_score += self.avg_rating[ra] * main_weight
+            final_score = main_score + us_weight * self.us 
         else:
-            main_weight = main_weight/len_aspects
-        other_weight = other_weight/(len_dict-len_aspects) if 'Overall' not in self.avg_rating else other_weight/((len_dict-len_aspects)-1)
-        other_weight_score = 0
-        main_weight_score = 0
-        overall_weight_score = 0
-        for k in self.avg_rating:
-            if 'Overall' in self.avg_rating:
-                if k not in set(real_aspects) and k != 'Overall':
-                    other_weight_score += self.avg_rating[k]*other_weight
-            else:
-                if k not in set(real_aspects):
-                    other_weight_score += self.avg_rating[k]*other_weight
-                    overall_weight_score += self.avg_rating[k]
-        overall_weight_score = overall_weight_score/((len_dict-len_aspects)-1)
+            final_score = self.us         
 
-        for a in real_aspects:
-            main_weight_score += self.avg_rating[a]*main_weight
-
-        if 'Overall' in self.avg_rating:
-            final_score = main_weight_score + other_weight_score + (self.avg_rating['Overall'] * overall_weight) + (num_review_weight * self.num_of_reveiws)
-        else:
-            final_score = main_weight_score + other_weight_score + (overall_weight_score * overall_weight) + (num_review_weight * self.num_of_reveiws)
         return final_score
 
 
 def main(args):
     hotel = Hotel()
     print("start processing hotel ratings")
-    text = ''
+    text = 'internet'
     hotel_score = []
     for file in glob.glob('./json_small/*.json'):
         if hotel.generate_hotel_name(file) != None and hotel.generate_rating_dict(file) != None:
             name = hotel.name
-            score = hotel.rank_aspect(text)
-            combo = (name,score)
-            hotel_score.append(combo)
-    hotel_score = sorted(hotel_score, key = lambda x: x[1],reverse=True) 
-    print(hotel_score)
-    print(hotel.name)
+            price = hotel.price
+            addrs = hotel.address
+            print(name,price,addrs)
+            # score = hotel.rank_aspect(text)
+            # combo = (name,score)
+            # hotel_score.append(combo)
+    # hotel_score = sorted(hotel_score, key = lambda x: x[1],reverse=True) 
+    # print(hotel_score)
+    # print(hotel.name)
    
 
 if __name__ == '__main__':
