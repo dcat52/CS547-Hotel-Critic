@@ -1,0 +1,27 @@
+{% extends "bootstrap/base.html" %}
+{% import "bootstrap/wtf.html" as wtf %}
+{% import "bootstrap/fixes.html" as fixes %}
+{% import "bootstrap/utils.html" as util %}
+
+{% block content %}
+{{util.flashed_messages(dismissible=True)}}
+<div class="container">
+  <h1>About the Hotel Critic</h1>
+  
+  {{ vers }}
+  <br>
+  <br>
+
+  {{ text }}
+
+  <br>
+  <br>
+  <button onClick="location.href='/'">Take me home!</button>
+
+</div>
+{% endblock %}
+
+{% block head %}
+{{super()}}
+{{fixes.ie8()}}
+{% endblock %}
