@@ -1,17 +1,12 @@
 from project.models.Hotel import Hotel
 from project.controllers.QueryProcess import *
-import project.controllers.binarytree as binarytree
 import pandas as pd
 import glob
 import json
 import math
 import re
 
-bt = binarytree.binary_tree()
-# contains hotel names
-hotels = []
-
-def build_data(pattern='./json_small/*.json'):
+def build_data(bt, hotels, pattern='./json_small/*.json'):
     hotel_list = []
 
     for file in glob.glob(pattern):
@@ -19,11 +14,11 @@ def build_data(pattern='./json_small/*.json'):
         hotel = Hotel()
         if generate_hotel_name(hotel, data) is not None and generate_rating_dict(hotel, data) is not None:
             hotel_list.append(hotel)
-    idx = index_dir(hotel_list)    
+    idx = index_dir(hotel_list, bt, hotels)    
     print("indexed %d hotels" % idx)
     return hotel_list
 
-def index_dir(hotel_list):
+def index_dir(hotel_list, bt, hotels):
         num_hotels_indexed = 0
         for h in hotel_list:
             num_hotels_indexed += 1

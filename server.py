@@ -6,7 +6,7 @@ __email__ = "_@wpi.edu"
 
 from project import app
 from flask_bootstrap import Bootstrap
-
+import project.controllers.binarytree as binarytree
 from project.models.Hotel import Hotel
 from project.controllers.DataPreprocess import *
 from project.controllers.QueryProcess import *
@@ -17,11 +17,13 @@ if __name__ == '__main__':
     app.debug = True
 
     # attempt to get data from home directory
-    app.data = build_data('/home/json_small/*.json')
+    app.bt = binarytree.binary_tree()
+    app.hotels = []
+    app.data = build_data(app.bt, app.hotels, '/home/json_small/*.json')
     
     # if failed, get the data local directory
     if len(app.data) == 0:
-        app.data = build_data('./json_small/*.json')
+        app.data = build_data(app.bt, app.hotels, './json_small/*.json')
 
     # in a real app, these should be configured through Flask-Appconfig
     app.config['SECRET_KEY'] = 'devkey'

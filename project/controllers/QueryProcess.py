@@ -3,6 +3,7 @@ import json
 import re
 import numpy as np
 import math 
+from project.controllers.DataPreprocess import *
 from statistics import mean
 
 def crawl_tree(node, term):
@@ -12,7 +13,7 @@ def crawl_tree(node, term):
     else: x = set()
     return x.union(crawl_tree(node.left, term)).union(crawl_tree(node.right, term))
 
-def cosine(q):
+def cosine(q, n):
     length = np.zeros(n)
     scores = np.zeros(n)
     tokens = tokenize(q)
