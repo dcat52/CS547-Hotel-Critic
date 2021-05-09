@@ -28,6 +28,7 @@
             <th>Rating</th>
             <th>Hotel</th>
             <th>Location</th>
+            <th>Price</th>
         <tr>
     </thead>
     <tbody>
@@ -36,7 +37,8 @@
             <td>{{ 1 }}</td>
             <td>{{ h[0] }}</td>
             <td>{{ h[1].name }}</td>
-            <td>{{ h[1].city }}</td>
+            <td>{{ h[1].address }}</td>
+            <td>{{ h[1].price }}</td>
         </tr>
         {% endfor %}
     </tbody>
