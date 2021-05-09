@@ -4,6 +4,7 @@ class Hotel(object):
         self.num_of_reveiws = 0
         self.avg_rating = {}
         self.name = ''
+        self.price = ''
         self.address = ''
         self.city = ''
         self.state = ''

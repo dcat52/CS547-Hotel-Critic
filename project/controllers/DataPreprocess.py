@@ -118,4 +118,8 @@ def generate_hotel_name(hotel, hotel_dict):
         hotel_info = hotel_dict['HotelInfo']
         if 'Name' in hotel_info:
             hotel.name = hotel_info['Name']
+        if "Price" in hotel_info:
+            hotel.price = hotel_info['Price']
+        if 'Address' in hotel_info:
+            hotel.address = hotel_info['Address']
             return hotel_info['Name']
