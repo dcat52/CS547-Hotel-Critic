@@ -14,6 +14,7 @@ def crawl_tree(node, term):
     return x.union(crawl_tree(node.left, term)).union(crawl_tree(node.right, term))
 
 def cosine(q, n):
+    # n is the length of list of hotel names that need to be passed in
     length = np.zeros(n)
     scores = np.zeros(n)
     tokens = tokenize(q)
