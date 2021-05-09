@@ -160,7 +160,7 @@ class Hotel(object):
 def main(args):
     hotel = Hotel()
     print("start processing hotel ratings")
-    text = 'internet'
+    text = 'clean and service and internet'
     hotel_score = []
     for file in glob.glob('./json_small/*.json'):
         if hotel.generate_hotel_name(file) != None and hotel.generate_rating_dict(file) != None:
