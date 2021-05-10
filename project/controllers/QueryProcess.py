@@ -67,7 +67,7 @@ def calculate_universal_score(hotel, overall_weight=0.5, other_weight=0.45, num_
     if len_aspects > 0:
         for k in aspects:
             other_score += hotel.avg_rating[k] * other_weight
-    final_score = overall_score + other_score + (math.log(hotel.num_of_reveiws)*num_review_weight)
+    final_score = overall_score + other_score + (math.log(hotel.num_of_reviews)*num_review_weight)
     hotel.us = final_score
     return final_score
 
