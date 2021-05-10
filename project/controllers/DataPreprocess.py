@@ -1,10 +1,9 @@
 from project.models.Hotel import Hotel
 from project.controllers.QueryProcess import *
-import project.controllers.PorterStemmer as PorterStemmer
-import project.controllers.binarytree as binarytree
 import pandas as pd
 import glob
 import json
+import math
 import re
 import os
 import traceback
@@ -143,7 +142,12 @@ def parse_hotel_reviews(data: dict) -> list:
 
     return all_reviews
 
-def index_dir(hotel_list):
+# def index_dir(hotel_list):
+#     idx = index_dir(hotel_list, bt, hotels)    
+#     print("indexed %d hotels" % idx)
+#     return hotel_list
+
+def index_dir(hotel_list, bt, hotels):
         num_hotels_indexed = 0
         for h in hotel_list:
             num_hotels_indexed += 1
@@ -151,10 +155,12 @@ def index_dir(hotel_list):
                 hotels.append(h.name)
             hotel_idx = hotels.index(h.name)
             for term in h.comment:
+                tf = h.comment.count(term)
+                weighted_tf = 1 + math.log10(tf)
                 if term not in bt:
                     bt[term] = set()
                 if hotel_idx not in bt[term]:
-                    bt[term].add(hotel_idx)
+                    bt[term].add((hotel_idx, weighted_tf, len(h.comment)))
                     
         return num_hotels_indexed
 
