@@ -1,6 +1,6 @@
 from project.models.Hotel import Hotel
 # from project.controllers.QueryProcess import *
-from project.controllers.PorterStemmer import *
+# from project.controllers.PorterStemmer import *
 import pandas as pd
 import glob
 import json
@@ -9,7 +9,7 @@ from statistics import mean
 import re
 import os
 import traceback
-from collections import Counter
+# from collections import Counter
 
 # bt = binarytree.binary_tree()
 # # contains hotel names
@@ -23,6 +23,15 @@ from collections import Counter
 #     return x.union(crawl_tree(node.left, term)).union(crawl_tree(node.right, term))
 
 def build_hotel_obj_data(pattern='./json_small/*.json') -> list:
+    """
+    build a list of hotel objects
+
+    Args:
+        pattern (str, optional): pattern of matching json files. Defaults to './json_small/*.json'.
+
+    Returns:
+        list: list of Hotel objects
+    """
     hotel_list = []
 
     for file in glob.glob(pattern):
@@ -35,6 +44,15 @@ def build_hotel_obj_data(pattern='./json_small/*.json') -> list:
     return hotel_list
 
 def build_hotel_review_data(pattern='./json_small/*.json') -> list:
+    """
+    build a dict of hotel id, review list pairs
+
+    Args:
+        pattern (str, optional): pattern of matching json files. Defaults to './json_small/*.json'.
+
+    Returns:
+        dict: dictionary of { hotel_id : ['review 1 contents', 'review 2 contents'] }
+    """
     hotel_dict = {}
 
     for file in glob.glob(pattern):
@@ -61,7 +79,7 @@ def parse_hotel_id(hotel: Hotel, filepath: str) -> bool:
         bool: whether successful
     """
     hotel_id = os.path.basename(filepath)
-    hotel.id = hotel_id[:5]
+    hotel.id = hotel_id[:-5]
 
     return True
     
