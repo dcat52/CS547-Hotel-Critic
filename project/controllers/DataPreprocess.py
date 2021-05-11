@@ -56,14 +56,14 @@ def build_hotel_review_data(pattern='./json_small/*.json') -> list:
     hotel_dict = {}
 
     for file in glob.glob(pattern):
-        term_freqs = {}
         hotel = Hotel()
         parse_hotel_id(hotel, file)
         hotel_id = hotel.id
 
         data = load_datafile(file)
-        reviews = parse_hotel_reviews(data)
-        hotel_dict[hotel_id] = reviews
+        if parse_hotel_info(hotel, data) and generate_rating_dict(hotel, data):
+            reviews = parse_hotel_reviews(data)
+            hotel_dict[hotel_id] = reviews
 
     return hotel_dict
 
