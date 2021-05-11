@@ -97,6 +97,7 @@ def parse_location(hotel_obj_list, location):
 
 
 def cal_cosine(hotel, review_tf, text):
+    text = text.lower()
     text = text.split(' ')
     stem_text = stemming(text)
     text_tf_d = Counter(stem_text)

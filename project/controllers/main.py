@@ -8,8 +8,8 @@ from flask_wtf import FlaskForm
 from project import app
 from project.models.Hotel import Hotel
 from project.models.SearchForm import SearchForm
-from project.controllers.DataPreprocess import *
-from project.controllers.QueryProcess import *
+# from project.controllers.DataPreprocess import *
+from project.controllers.QueryProcess import parse_location, cal_final_score
 
 def get_version_string():
     version_str = "Vers. {}".format(app.__version__)
@@ -38,33 +38,29 @@ def index(query=''):
     form = SearchForm()
     form.validate_on_submit()
     
-    hotel_list = app.data
+    hotel_list = app.data_hotel_list
+    tf_dict = app.data_tf_dict
 
     print("QUERY: {}".format(query))
-    # print(hotel_list)
 
+    location = ''
+    matched_hotels = parse_location(hotel_list, location)
     data = []
-    for h in hotel_list:
-        score = rank_aspect(h, query)
-        packed_data = (score, h)
-        data.append(packed_data)
-
+    for obj in matched_hotels:
+        score = cal_final_score(obj, query, tf_dict)
+        data.append((score, obj))
     data.sort(key=lambda x: x[0], reverse=True)
 
-    print(data[:5])
-    # p1 = Hotel(1, 4.8, "Higgins", "WPI")
-    # p2 = Hotel(2, 4.5, "Salisbury", "WPI")
-    # p3 = Hotel(3, 1.2, "Sketchy", "Nowhere")
-    # p4 = Hotel(4, 1.1, "Super Sketchy", "Nowhere")
-    # hotels = [p1, p2, p3, p4]
 
-    # if submit:
-    #     i = 0
-    #     while i < len(hotels):
-    #         if form.qfield.data not in hotels[i].name:
-    #             hotels.pop(i)
-    #         else:
-    #             i += 1
+    # data = []
+    # for h in hotel_list:
+    #     score = rank_aspect(h, query)
+    #     packed_data = (score, h)
+    #     data.append(packed_data)
+
+    # data.sort(key=lambda x: x[0], reverse=True)
+
+    # print(data[:5])
 
     version_str = get_version_string()
 

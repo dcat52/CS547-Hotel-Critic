@@ -10,20 +10,30 @@ import project.controllers.binarytree as binarytree
 from project.models.Hotel import Hotel
 from project.controllers.DataPreprocess import *
 from project.controllers.QueryProcess import *
+import pickle
 
 if __name__ == '__main__':
     Bootstrap(app)
 
     app.debug = True
 
-    # attempt to get data from home directory
-    app.bt = binarytree.binary_tree()
-    app.hotels = []
-    app.data = build_hotel_obj_data('/home/json_small/*.json')
+    with open('hotel_list.pkl', 'rb') as handle:
+        hotel_list = pickle.load(handle)
+
+    with open('review_tf.pkl', 'rb') as handle:
+        tf_dict = pickle.load(handle)
+
+    app.data_hotel_list = hotel_list
+    app.data_tf_dict = tf_dict
+
+    # # attempt to get data from home directory
+    # app.bt = binarytree.binary_tree()
+    # app.hotels = []
+    # app.data = build_hotel_obj_data('/home/json_small/*.json')
     
-    # if failed, get the data local directory
-    if len(app.data) == 0:
-        app.data = build_hotel_obj_data('./json_small/*.json')
+    # # if failed, get the data local directory
+    # if len(app.data) == 0:
+    #     app.data = build_hotel_obj_data('./json_small/*.json')
 
     # in a real app, these should be configured through Flask-Appconfig
     app.config['SECRET_KEY'] = 'devkey'
