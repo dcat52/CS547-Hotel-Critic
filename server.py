@@ -17,14 +17,14 @@ if __name__ == '__main__':
 
     
     try:
-        fn = '/home/hotel_list.pkl'
+        fn = '/home/site/wwwroot/hotel_list.pkl'
         if not os.path.isfile(fn):
             fn = 'hotel_list.pkl'
 
         with open(fn, 'rb') as handle:
             hotel_list = pickle.load(handle)
 
-        fn = '/home/review_tf.pkl'
+        fn = '/home/site/wwwroot/review_tf.pkl'
         if not os.path.isfile(fn):
             fn = 'review_tf.pkl'
         with open(fn, 'rb') as handle:

@@ -1,32 +1,6 @@
 import math
-from statistics import mean
 from collections import Counter
-
-# def crawl_tree(node, term):
-#     if not node: return set()
-#     if term == node.key:
-#         x = node.data
-#     else: x = set()
-#     return x.union(crawl_tree(node.left, term)).union(crawl_tree(node.right, term))
-
-# def cosine(q, n):
-#     # n is the length of list of hotel names that need to be passed in
-#     length = np.zeros(n)
-#     scores = np.zeros(n)
-#     tokens = tokenize(q)
-#     for t in tokens:
-#         hotels = crawl_tree(bt.root, t)
-#         tf = tokens.count(t)
-#         weighted_tf = 1 + math.log10(tf)
-#         idf = math.log10(n // len(hotels))
-#         q_tf_idf = weighted_tf * idf
-#         for hotel in hotels:
-#             h_tf_idf = hotel[1] * idf
-#             scores[hotel[0]] += q_tf_idf * h_tf_idf
-#             length[hotel[0]] = hotel[2]
-#     for i in range(len(scores)):
-#         scores[i] //= length[i] 
-#     return scores[:10]
+from project.controllers.DataPreprocess import stemming
 
 def rank_aspect(hotel, text):
     # process and first, then or later
