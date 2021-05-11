@@ -26,8 +26,14 @@ import time
 
 with open('hotel_list.pkl', 'rb') as handle:
     hotel_obj = pickle.load(handle)
-with open('hotel_reviews.pkl', 'rb') as handle:
-    review_data = pickle.load(handle)
+h_d = {}
+for obj in hotel_obj:
+    if obj.name not in h_d:
+        h_d[obj.name] = obj
+hotel_obj = list(h_d.values())
+
+# with open('hotel_reviews.pkl', 'rb') as handle:
+#     review_data = pickle.load(handle)
 
 ###############################################################################
 #       CALCULATING TF -- TAKES A LONG TIME TO RUN!!!                         #
@@ -39,7 +45,7 @@ with open('hotel_reviews.pkl', 'rb') as handle:
 with open('review_tf.pkl', 'rb') as handle:
     tf_dict = pickle.load(handle)
 
-location = 'worcester'
+location = ''
 text = 'clean hotel'
 matched_hotels = parse_location(hotel_obj, location)
 data = []
@@ -48,8 +54,8 @@ for obj in matched_hotels:
     data.append((score,obj))
 data.sort(key=lambda x: x[0], reverse=True)
 
-print(data[:5])
-
+for i in data:
+    print(i)
 
 # idf_data = build_idf_data(hotel_obj, tf_dict)
 # with open('review_idf.pkl', 'wb') as handle:

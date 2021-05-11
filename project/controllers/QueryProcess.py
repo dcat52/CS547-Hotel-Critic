@@ -89,7 +89,7 @@ def parse_location(hotel_obj_list, location):
             matched_hotels.append(obj)
     if len(matched_hotels) >= 200:
         matched_hotels = matched_hotels[:200]
-    elif len(matched_hotels) == 0:
+    elif len(location) == 0:
         matched_hotels = hotel_obj_list[:200]
 
 
