@@ -6,33 +6,46 @@ __email__ = "_@wpi.edu"
 
 from project import app
 from flask_bootstrap import Bootstrap
-import project.controllers.binarytree as binarytree
 from project.models.Hotel import Hotel
-from project.controllers.DataPreprocess import *
-from project.controllers.QueryProcess import *
 import pickle
+import os.path
 
 if __name__ == '__main__':
     Bootstrap(app)
 
     app.debug = True
 
+    
     try:
-        with open('/home/hotel_list.pkl', 'rb') as handle:
+        fn = '/home/hotel_list.pkl'
+        if not os.path.isfile(fn):
+            fn = 'hotel_list.pkl'
+
+        with open(fn, 'rb') as handle:
             hotel_list = pickle.load(handle)
 
-        # with open('review_tf.pkl', 'rb') as handle:
-        #     tf_dict = pickle.load(handle)
+        fn = '/home/review_tf.pkl'
+        if not os.path.isfile(fn):
+            fn = 'review_tf.pkl'
+        with open(fn, 'rb') as handle:
+            tf_dict = pickle.load(handle)
 
     except:
-        with open('hotel_list.pkl', 'rb') as handle:
-            hotel_list = pickle.load(handle)
+        h = Hotel()
+        h.id = "0"
+        h.name = "error"
+        h.address = "error"
+
+        hotel_list = [h]
+        tf_dict = {"0":{'error':1}}
+        # with open('hotel_list.pkl', 'rb') as handle:
+        #     hotel_list = pickle.load(handle)
 
         # with open('review_tf.pkl', 'rb') as handle:
         #     tf_dict = pickle.load(handle)
 
-    tf_dict = {}
-    
+    # tf_dict = {}
+
     app.data_hotel_list = hotel_list
     app.data_tf_dict = tf_dict
 

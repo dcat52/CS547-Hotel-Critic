@@ -1,9 +1,4 @@
-import pandas as pd
-import json
-import re
-import numpy as np
-import math 
-from project.controllers.DataPreprocess import *
+import math
 from statistics import mean
 from collections import Counter
 
@@ -121,7 +116,7 @@ def cal_cosine(hotel, review_tf, text):
 
 def calculate_aspect_score(hotel, aspects, main_weight=0.6, us_weight = 0.4):
 
-    us = calculate_universal_score(hotel)
+    us = hotel.us
 
     real_aspects = []
     # find out aspects that are in the query and match them with the rating dictionary
@@ -133,9 +128,9 @@ def calculate_aspect_score(hotel, aspects, main_weight=0.6, us_weight = 0.4):
         main_score = 0
         for ra in real_aspects:
             main_score += hotel.avg_rating[ra] * main_weight
-        final_score = main_score + us_weight * hotel.us 
+        final_score = main_score + us_weight * hotel.us
     else:
-        final_score = hotel.us         
+        final_score = hotel.us
 
     return final_score
 

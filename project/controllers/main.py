@@ -2,13 +2,10 @@
     Example Controllers
 """
 
-from flask import render_template, redirect, url_for
-from flask_wtf import FlaskForm
+from flask import render_template
 
 from project import app
-from project.models.Hotel import Hotel
 from project.models.SearchForm import SearchForm
-# from project.controllers.DataPreprocess import *
 from project.controllers.QueryProcess import parse_location, cal_final_score
 
 def get_version_string():

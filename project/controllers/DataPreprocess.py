@@ -1,14 +1,11 @@
 from project.models.Hotel import Hotel
-# from project.controllers.QueryProcess import *
 from project.controllers.PorterStemmer import *
-import pandas as pd
 import glob
 import json
 import math
-from statistics import mean 
+from statistics import mean
 import re
 import os
-import traceback
 from collections import Counter
 # from collections import Counter
 
