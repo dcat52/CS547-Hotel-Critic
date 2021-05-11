@@ -1,6 +1,6 @@
 from project.models.Hotel import Hotel
 # from project.controllers.QueryProcess import *
-# from project.controllers.PorterStemmer import *
+from project.controllers.PorterStemmer import *
 import pandas as pd
 import glob
 import json
@@ -9,6 +9,7 @@ from statistics import mean
 import re
 import os
 import traceback
+from collections import Counter
 # from collections import Counter
 
 # bt = binarytree.binary_tree()
@@ -39,7 +40,9 @@ def build_hotel_obj_data(pattern='./json_small/*.json') -> list:
         parse_hotel_id(hotel, file)
         data = load_datafile(file)
         if parse_hotel_info(hotel, data) and generate_rating_dict(hotel, data):
+            us = calculate_universal_score(hotel)
             hotel_list.append(hotel)
+    hotel_list = sorted(hotel_list, key=lambda x: x.us , reverse= True)
 
     return hotel_list
 
@@ -203,18 +206,18 @@ def load_datafile(filepath):
 def tokenize(text):
     clean_string = re.sub('[^a-z0-9 ]', ' ', text.lower())
     tokens = clean_string.split()
-    return set(tokens)
+    return tokens
 
 def stemming(tokens):
-    stems = set()
-    p = PorterStemmer()
-    for token in tokens:
-        stems.add(p.stem(token, 0, len(token) - 1))
-    return stems
+    stemmed_tokens = []
+    # PUT YOUR CODE HERE
+    st = PorterStemmer()
+    for w in tokens:
+        stemmed_tokens.append(st.stem(w,0,len(w)-1))
+    return stemmed_tokens
 
 def calculate_universal_score(hotel, overall_weight=0.5, other_weight=0.45, num_review_weight=0.05):
     len_aspects = len(hotel.avg_rating) -1 if 'Overall' in hotel.avg_rating else len(hotel.avg_rating)
-
     aspects = []
     for k in hotel.avg_rating:
         if k != 'Overall':
@@ -236,12 +239,25 @@ def calculate_universal_score(hotel, overall_weight=0.5, other_weight=0.45, num_
 
 def build_tf_data(hotel_obj_list,review_data):
     tf_d = {}
+    count = 0
     for ho in hotel_obj_list:
+        count += 1
+        print(count)
         hotel_id = ho.id
-        print(review_data.keys())
-        if hotel_id in review_data:
-            tf_d[hotel_id] = dict(Counter(review_data[hotel_id]))
+        tokens = tokenize(' '.join(review_data[hotel_id]))
+        stem_tokens = stemming(tokens)
+        tf_d[hotel_id] = dict(Counter(stem_tokens))
     return tf_d
+
+def build_idf_data(hotel_obj_list, tf_data):
+    idf_list = []
+    for ho in hotel_obj_list:
+        idf_list.extend(list(tf_data[ho.id].keys()))
+    print(idf_list[:10])
+    return Counter(idf_list)
+
+    
+
         
     
 

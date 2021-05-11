@@ -5,6 +5,7 @@ import numpy as np
 import math 
 from project.controllers.DataPreprocess import *
 from statistics import mean
+from collections import Counter
 
 # def crawl_tree(node, term):
 #     if not node: return set()
@@ -80,26 +81,40 @@ def process_and(hotel, text):
                 aspect.append(key_words_dict[t.strip()])
     return aspect
 
-# def calculate_universal_score(hotel, overall_weight=0.5, other_weight=0.45, num_review_weight=0.05):
-#     len_aspects = len(hotel.avg_rating) -1 if 'Overall' in hotel.avg_rating else len(hotel.avg_rating)
 
-#     aspects = []
-#     for k in hotel.avg_rating:
-#         if k != 'Overall':
-#             aspects.append(k)
+def parse_location(hotel_obj_list, location):
+    matched_hotels = []
+    for obj in hotel_obj_list:
+        if location.lower() in obj.address.lower():
+            matched_hotels.append(obj)
+    if len(matched_hotels) >= 200:
+        matched_hotels = matched_hotels[:200]
+    elif len(matched_hotels) == 0:
+        matched_hotels = hotel_obj_list[200]
 
-#     # retrieve overall rating from the avg_rating dictionary, otherwise use all other aspects' average score as overall rating
-#     overall = hotel.avg_rating['Overall'] if 'Overall' in hotel.avg_rating else mean(hotel.avg_rating.values())
-#     # if there is no other aspects score then overall weight becomes 0.95
-#     overall_score = overall_weight * overall if len_aspects > 0 else (overall_weight+other_weight) * overall 
-#     other_weight = (other_weight / len_aspects) if len_aspects > 0 else other_weight
-#     other_score = 0
-#     if len_aspects > 0:
-#         for k in aspects:
-#             other_score += hotel.avg_rating[k] * other_weight
-#     final_score = overall_score + other_score + (math.log(hotel.num_of_reviews)*num_review_weight)
-#     hotel.us = final_score
-#     return final_score
+    return matched_hotels
+
+
+def cal_cosine(hotel, review_tf, text):
+    text = text.split(' ')
+    stem_text = stemming(text)
+    text_tf_d = Counter(stem_text)
+    matched_text = []  
+    add_hotel = 0
+    add_text = 0
+    for t in stem_text:
+        if t in review_tf[hotel.id]:
+            hotel_tf = review_tf[hotel.id][t]
+            text_tf = text_tf_d[t]
+            add_hotel += hotel_tf ** 2
+            add_text += text_tf ** 2
+            matched_text.append((t,hotel_tf,text_tf))
+    result = {}
+    for m in matched_text:
+        result[m[0]] = (m[1]/math.sqrt(add_hotel))*(m[2]/math.sqrt(add_text))
+    return sum(result.values())
+
+
 
 
 def calculate_aspect_score(hotel, aspects, main_weight=0.6, us_weight = 0.4):
@@ -121,3 +136,9 @@ def calculate_aspect_score(hotel, aspects, main_weight=0.6, us_weight = 0.4):
         final_score = hotel.us         
 
     return final_score
+
+def cal_final_score(hotel, text, review_tf):
+    rated_score = rank_aspect(hotel, text)
+    review_score = cal_cosine(hotel, review_tf, text)*5
+    final_score = rated_score + review_score
+    return round(final_score,3)
