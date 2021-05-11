@@ -19,11 +19,11 @@ if __name__ == '__main__':
     # attempt to get data from home directory
     app.bt = binarytree.binary_tree()
     app.hotels = []
-    app.data = build_data(app.bt, app.hotels, '/home/json_small/*.json')
+    app.data = build_hotel_obj_data('/home/json_small/*.json')
     
     # if failed, get the data local directory
     if len(app.data) == 0:
-        app.data = build_data(app.bt, app.hotels, './json_small/*.json')
+        app.data = build_hotel_obj_data('./json_small/*.json')
 
     # in a real app, these should be configured through Flask-Appconfig
     app.config['SECRET_KEY'] = 'devkey'

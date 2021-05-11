@@ -1,23 +1,26 @@
 from project.models.Hotel import Hotel
-from project.controllers.QueryProcess import *
+# from project.controllers.QueryProcess import *
+from project.controllers.PorterStemmer import *
 import pandas as pd
 import glob
 import json
 import math
+from statistics import mean 
 import re
 import os
 import traceback
+from collections import Counter
 
 # bt = binarytree.binary_tree()
 # # contains hotel names
 # hotels = []
 
-def crawl_tree(node, term):
-    if not node: return set()
-    if ('*' in term and node.key.startswith(term[:-1])) or term == node.key:
-        x = node.data
-    else: x = set()
-    return x.union(crawl_tree(node.left, term)).union(crawl_tree(node.right, term))
+# def crawl_tree(node, term):
+#     if not node: return set()
+#     if ('*' in term and node.key.startswith(term[:-1])) or term == node.key:
+#         x = node.data
+#     else: x = set()
+#     return x.union(crawl_tree(node.left, term)).union(crawl_tree(node.right, term))
 
 def build_hotel_obj_data(pattern='./json_small/*.json') -> list:
     hotel_list = []
@@ -38,7 +41,7 @@ def build_hotel_review_data(pattern='./json_small/*.json') -> list:
         term_freqs = {}
         hotel = Hotel()
         parse_hotel_id(hotel, file)
-        hotel_id = hotel.id[:-5]
+        hotel_id = hotel.id
 
         data = load_datafile(file)
         reviews = parse_hotel_reviews(data)
@@ -58,7 +61,7 @@ def parse_hotel_id(hotel: Hotel, filepath: str) -> bool:
         bool: whether successful
     """
     hotel_id = os.path.basename(filepath)
-    hotel.id = hotel_id
+    hotel.id = hotel_id[:5]
 
     return True
     
@@ -186,7 +189,42 @@ def tokenize(text):
 
 def stemming(tokens):
     stems = set()
-    p = PorterStemmer.PorterStemmer()
+    p = PorterStemmer()
     for token in tokens:
         stems.add(p.stem(token, 0, len(token) - 1))
     return stems
+
+def calculate_universal_score(hotel, overall_weight=0.5, other_weight=0.45, num_review_weight=0.05):
+    len_aspects = len(hotel.avg_rating) -1 if 'Overall' in hotel.avg_rating else len(hotel.avg_rating)
+
+    aspects = []
+    for k in hotel.avg_rating:
+        if k != 'Overall':
+            aspects.append(k)
+
+    # retrieve overall rating from the avg_rating dictionary, otherwise use all other aspects' average score as overall rating
+    overall = hotel.avg_rating['Overall'] if 'Overall' in hotel.avg_rating else mean(hotel.avg_rating.values())
+    # if there is no other aspects score then overall weight becomes 0.95
+    overall_score = overall_weight * overall if len_aspects > 0 else (overall_weight+other_weight) * overall 
+    other_weight = (other_weight / len_aspects) if len_aspects > 0 else other_weight
+    other_score = 0
+    if len_aspects > 0:
+        for k in aspects:
+            other_score += hotel.avg_rating[k] * other_weight
+    final_score = overall_score + other_score + (math.log(hotel.num_of_reviews)*num_review_weight)
+    hotel.us = final_score
+    return final_score
+
+
+def build_tf_data(hotel_obj_list,review_data):
+    tf_d = {}
+    for ho in hotel_obj_list:
+        hotel_id = ho.id
+        print(review_data.keys())
+        if hotel_id in review_data:
+            tf_d[hotel_id] = dict(Counter(review_data[hotel_id]))
+    return tf_d
+        
+    
+
+    
