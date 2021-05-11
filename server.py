@@ -17,12 +17,22 @@ if __name__ == '__main__':
 
     app.debug = True
 
-    with open('hotel_list.pkl', 'rb') as handle:
-        hotel_list = pickle.load(handle)
+    try:
+        with open('/home/hotel_list.pkl', 'rb') as handle:
+            hotel_list = pickle.load(handle)
 
-    with open('review_tf.pkl', 'rb') as handle:
-        tf_dict = pickle.load(handle)
+        # with open('review_tf.pkl', 'rb') as handle:
+        #     tf_dict = pickle.load(handle)
 
+    except:
+        with open('hotel_list.pkl', 'rb') as handle:
+            hotel_list = pickle.load(handle)
+
+        # with open('review_tf.pkl', 'rb') as handle:
+        #     tf_dict = pickle.load(handle)
+
+    tf_dict = {}
+    
     app.data_hotel_list = hotel_list
     app.data_tf_dict = tf_dict
 
