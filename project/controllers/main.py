@@ -23,11 +23,14 @@ def about():
 def search():
     form = SearchForm()
     form.validate_on_submit()
-    return index(query=form.qfield.data)
+    return index(query=form.qfield.data, location=form.lfield.data)
 
 #route index
 @app.route('/', methods=['GET'])
-def index(query=''):
+def index(query='', location=''):
+    form = SearchForm()
+    form.validate_on_submit()
+    
     data = {
         "title": "Hello World",
         "body": "Flask simple MVC"
@@ -39,25 +42,14 @@ def index(query=''):
     tf_dict = app.data_tf_dict
 
     print("QUERY: {}".format(query))
+    print("LOCATION: {}".format(location))
 
-    location = ''
     matched_hotels = parse_location(hotel_list, location)
     data = []
     for obj in matched_hotels:
         score = cal_final_score(obj, query, tf_dict)
         data.append((score, obj))
     data.sort(key=lambda x: x[0], reverse=True)
-
-
-    # data = []
-    # for h in hotel_list:
-    #     score = rank_aspect(h, query)
-    #     packed_data = (score, h)
-    #     data.append(packed_data)
-
-    # data.sort(key=lambda x: x[0], reverse=True)
-
-    # print(data[:5])
 
     version_str = get_version_string()
 

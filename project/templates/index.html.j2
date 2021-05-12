@@ -32,9 +32,11 @@
         <tr>
     </thead>
     <tbody>
+        {% set count = namespace(value=0) %}
         {% for h in hotels %}
         <tr>
-            <td>{{ 1 }}</td>
+            {% set count.value = count.value + 1 %}
+            <td>{{ count.value }}</td>
             <td>{{ h[0] }}</td>
             <td>{{ h[1].name }}</td>
             <td>{{ h[1].address }}</td>
