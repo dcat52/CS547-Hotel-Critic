@@ -6,7 +6,7 @@ from flask import render_template
 
 from project import app
 from project.models.SearchForm import SearchForm
-from project.controllers.QueryProcess import parse_location, cal_final_score
+from project.controllers.QueryProcess import parse_location, cal_final_score, load_single_review_tf
 
 def get_version_string():
     version_str = "Vers. {}".format(app.__version__)
@@ -47,7 +47,8 @@ def index(query='', location=''):
     matched_hotels = parse_location(hotel_list, location)
     data = []
     for obj in matched_hotels:
-        score = cal_final_score(obj, query, tf_dict)
+        single_review_tf = load_single_review_tf(obj.id)
+        score = cal_final_score(obj, query, single_review_tf)
         data.append((score, obj))
     data.sort(key=lambda x: x[0], reverse=True)
 

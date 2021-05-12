@@ -1,6 +1,8 @@
 import math
 from collections import Counter
 from project.controllers.DataPreprocess import stemming
+import pickle
+import os.path
 
 def rank_aspect(hotel, text):
     # process and first, then or later
@@ -65,7 +67,7 @@ def parse_location(hotel_obj_list, location):
     return matched_hotels
 
 
-def cal_cosine(hotel, review_tf, text):
+def cal_cosine(hotel, single_review_tf, text):
     text = text.lower()
     text = text.split(' ')
     stem_text = stemming(text)
@@ -74,8 +76,8 @@ def cal_cosine(hotel, review_tf, text):
     add_hotel = 0
     add_text = 0
     for t in stem_text:
-        if t in review_tf[hotel.id]:
-            hotel_tf = review_tf[hotel.id][t]
+        if t in single_review_tf:
+            hotel_tf = single_review_tf[t]
             text_tf = text_tf_d[t]
             add_hotel += hotel_tf ** 2
             add_text += text_tf ** 2
@@ -108,8 +110,17 @@ def calculate_aspect_score(hotel, aspects, main_weight=0.6, us_weight = 0.4):
 
     return final_score
 
-def cal_final_score(hotel, text, review_tf):
+def cal_final_score(hotel, text, single_review_tf):
     rated_score = rank_aspect(hotel, text)
-    review_score = cal_cosine(hotel, review_tf, text)*5
+    review_score = cal_cosine(hotel, single_review_tf, text)*5
     final_score = rated_score + review_score
     return round(final_score,3)
+
+def load_single_review_tf(hotel_id):
+    fn = '/home/site/wwwroot/data/{}.pkl'.format(hotel_id)
+    if not os.path.isfile(fn):
+        fn = 'data/{}.pkl'.format(hotel_id)
+    with open(fn, 'rb') as handle:
+        single_review_tf = pickle.load(handle)
+
+    return single_review_tf
