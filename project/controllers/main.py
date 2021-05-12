@@ -39,7 +39,6 @@ def index(query='', location=''):
     form.validate_on_submit()
     
     hotel_list = app.data_hotel_list
-    tf_dict = app.data_tf_dict
 
     print("QUERY: {}".format(query))
     print("LOCATION: {}".format(location))

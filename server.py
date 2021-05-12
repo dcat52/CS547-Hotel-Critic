@@ -1,7 +1,7 @@
 #Project Flask MVC
 
 __author__ = "WPI_Students"
-__version__ = "0.5.1"
+__version__ = "0.5.2"
 __email__ = "_@wpi.edu"
 
 from project import app
