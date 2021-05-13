@@ -23,7 +23,7 @@ python3 --version
 ```
 ### What to Install
 ```
-pip -r requirements.txt
+pip install -r requirements.txt
 ```
 ### Get Data
 ```
